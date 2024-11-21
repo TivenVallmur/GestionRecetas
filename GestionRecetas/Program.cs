@@ -7,9 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Registrar HttpClient para SpoonacularService
-builder.Services.AddHttpClient<IEdamamService, EdamamService>();
-builder.Services.AddHttpClient<ITheMealDbService, TheMealDbService>();
-builder.Services.AddHttpClient<IRecipeService, RecipeService>();
+//builder.Services.AddHttpClient<IEdamamService, EdamamService>();
+//builder.Services.AddHttpClient<ITheMealDbService, TheMealDbService>();
+//builder.Services.AddHttpClient<IRecipeService, RecipeService>();
 
 var app = builder.Build();
 

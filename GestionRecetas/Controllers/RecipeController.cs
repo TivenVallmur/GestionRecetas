@@ -1,5 +1,6 @@
 ﻿using GestionRecetas.Interfaces;
 using GestionRecetas.Models;
+using GestionRecetas.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -10,29 +11,49 @@ namespace GestionRecetas.Controllers
     [Route("Recipe")]
     public class RecipeController : ControllerBase
     {
-        private readonly IRecipeService _recipeService;
-
+        //private readonly IRecipeService _recipeService;
+        private readonly IDatabaseRecipeService DbRecipeService;
+        private readonly IApiRecipeService EdmService = RecipeFactory.GetRecipeService("Edamam");
+        private readonly IApiRecipeService MdbService = RecipeFactory.GetRecipeService("TheMealdb");
+        
         // Inyección de dependencias a través del constructor
-        public RecipeController(IRecipeService recipeService)
-        {
-            _recipeService = recipeService;
-        }
+        //public RecipeController(IRecipeService recipeService)
+        //{
+        //    _recipeService = recipeService;
+        //}
 
         [HttpGet("GetRecipesByCountry")]
         public async Task<IActionResult> GetRecipesByCountry(string country)
         {
-            var recipes = await _recipeService.GetRecipesByCountry(country);
-            if (recipes == null || recipes.Count == 0)
+            var lstEdmRecipes = await EdmService.GetRecipesByCountry(country);
+            var lstMdbRecipes = await MdbService.GetRecipesByCountry(country);
+           
+            if (lstEdmRecipes == null || lstEdmRecipes.Count == 0 || lstMdbRecipes == null || lstMdbRecipes.Count == 0)
             {
                 return NotFound("No recipes found for the given country.");
             }
-            return Ok(recipes);
+            
+            var allRecipes = lstEdmRecipes.Union(lstMdbRecipes).ToList();
+
+            return Ok(allRecipes);
         }
 
         [HttpGet("details/{id}")]
-        public async Task<IActionResult> GetRecipeDetails(string id) // Usa string si el id es alfanumérico
+        public async Task<IActionResult> GetRecipeDetails(string id, RecipeProvider provider) // Usa string si el id es alfanumérico
         {
-            var details = await _recipeService.GetRecipeById(id); // Cambiado para que coincida con el servicio
+            Recipe details = new Recipe();
+            switch (provider)
+            {
+                case RecipeProvider.Edamam:
+                    details = await EdmService.GetRecipeById(id);
+                    break;
+                case RecipeProvider.TheMealDb:
+                    details = await MdbService.GetRecipeById(id);
+                    break;
+                default:
+                    break;
+            }
+            
             if (details == null)
             {
                 return NotFound("Recipe details not found.");

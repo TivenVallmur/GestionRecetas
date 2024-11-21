@@ -24,7 +24,7 @@ namespace GestionRecetas
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             // Aquí puedes registrar otros servicios, como el servicio para recetas
-            services.AddScoped<IRecipeService, RecipeService>();
+            //services.AddScoped<IRecipeService, RecipeService>();
 
             // Otras configuraciones de servicios
             services.AddControllersWithViews(); // Si estás usando MVC

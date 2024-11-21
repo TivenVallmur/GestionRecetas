@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionRecetas.Services
 {
-    public class RecipeService : IRecipeService
+    public class RecipeService : IDatabaseRecipeService
     {
         private readonly AdminDBContext _context;
 
@@ -16,23 +16,14 @@ namespace GestionRecetas.Services
         {
             _context = context;
         }
-
-        public async Task<List<Recipe>> GetAllRecipes()
-        {
-            return await _context.Recipes.ToListAsync(); // Obtener todas las recetas desde la base de datos
-        }
-
+                
         public async Task<Recipe> GetRecipeById(string recipeId)
         {
-            return await _context.Recipes.FindAsync(recipeId); // Buscar receta por ID
+            //Consultar la base de datos filtrando por id y retornar la receta.
+            Recipe recipe = _context.Recipes.Where(p => p.Id.Trim() == recipeId).FirstOrDefault();
+            
+            return recipe;
         }
-
-        public async Task<List<Recipe>> GetRecipesByCountry(string country)
-        {
-            return await _context.Recipes
-                .Where(r => r.Country.Contains(country)).ToListAsync(); // Obtener recetas por país
-        }
-
         public async Task AddRecipe(Recipe recipe)
         {
             _context.Recipes.Add(recipe); // Añadir nueva receta
